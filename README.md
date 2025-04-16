@@ -1,14 +1,49 @@
-# Getting Started with Create React App
+# Reconecta WhatsApp
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Interface web para gerenciamento de instâncias do WhatsApp usando a Evolution API.
 
-## Available Scripts
+## Configuração
 
-In the project directory, you can run:
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
 
-### `npm start`
+```env
+REACT_APP_EVOLUTION_API_KEY=sua_chave_api
+REACT_APP_EVOLUTION_BASE_URL=http://seu_servidor:porta
+```
 
-Runs the app in the development mode.\
+## Desenvolvimento Local
+
+```bash
+# Instalar dependências
+npm install
+
+# Iniciar em modo desenvolvimento
+npm start
+```
+
+## Deploy com Docker
+
+```bash
+# Construir e iniciar contêiner
+docker-compose up -d --build
+```
+
+## Deploy no Portainer
+
+1. Faça login no Portainer
+2. Vá em Stacks > Add stack
+3. Cole o conteúdo do `docker-compose.yml`
+4. Configure as variáveis de ambiente:
+   - REACT_APP_EVOLUTION_API_KEY
+   - REACT_APP_EVOLUTION_BASE_URL
+5. Deploy the stack
+
+## Segurança
+
+- Todas as credenciais sensíveis devem ser configuradas via variáveis de ambiente
+- O arquivo `.env` nunca deve ser commitado no repositório
+- A aplicação usa HTTPS por padrão em produção
+- Headers de segurança configurados no nginx
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.\
