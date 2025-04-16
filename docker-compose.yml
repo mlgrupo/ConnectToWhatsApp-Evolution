@@ -3,24 +3,21 @@ version: '3.8'
 services:
   web:
     image: reconecta/whatsapp-frontend:latest
+    ports:
+      - "8080:80"
     deploy:
       mode: replicated
       replicas: 1
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.reconecta-whatsapp.rule=Host(`connect.mlgrupo.com.br`)"
-        - "traefik.http.routers.reconecta-whatsapp.entrypoints=websecure"
-        - "traefik.http.routers.reconecta-whatsapp.tls=true"
-        - "traefik.http.routers.reconecta-whatsapp.tls.certresolver=letsencrypt"
-        - "traefik.http.services.reconecta-whatsapp.loadbalancer.server.port=80"
-
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
     environment:
       - REACT_APP_EVOLUTION_API_KEY=${REACT_APP_EVOLUTION_API_KEY}
       - REACT_APP_EVOLUTION_BASE_URL=${REACT_APP_EVOLUTION_BASE_URL}
-    networks:
-      - traefik-public
-
-networks:
-  traefik-public:
-    driver: overlay
-    attachable: true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
