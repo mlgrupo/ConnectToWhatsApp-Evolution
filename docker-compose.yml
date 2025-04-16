@@ -2,17 +2,25 @@ version: '3.8'
 
 services:
   web:
+    image: reconecta/whatsapp-frontend:latest
     build: .
-    container_name: reconecta-whatsapp
-    restart: always
-    ports:
-      - "8080:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.reconecta-whatsapp.rule=Host(`connect.mlgrupo.com.br`)"
+        - "traefik.http.routers.reconecta-whatsapp.entrypoints=websecure"
+        - "traefik.http.routers.reconecta-whatsapp.tls=true"
+        - "traefik.http.routers.reconecta-whatsapp.tls.certresolver=letsencrypt"
+        - "traefik.http.services.reconecta-whatsapp.loadbalancer.server.port=80"
+        - "traefik.docker.network=traefik-public"
     environment:
       - REACT_APP_EVOLUTION_API_KEY=${REACT_APP_EVOLUTION_API_KEY}
       - REACT_APP_EVOLUTION_BASE_URL=${REACT_APP_EVOLUTION_BASE_URL}
     networks:
-      - reconecta-network
+      - traefik-public
 
 networks:
-  reconecta-network:
-    driver: bridge
+  traefik-public:
+    external: true
