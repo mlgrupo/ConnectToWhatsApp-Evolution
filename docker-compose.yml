@@ -3,7 +3,6 @@ version: '3.8'
 services:
   web:
     image: reconecta/whatsapp-frontend:latest
-    build: .
     deploy:
       mode: replicated
       replicas: 1
