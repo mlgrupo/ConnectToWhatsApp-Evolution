@@ -1,51 +1,24 @@
-version: '3.8'
+version: '3'
 
 services:
   web:
     image: reconectawpp:latest
-    build:
-      context: https://github.com/jsKahne/reconectawpp.git#main
-      dockerfile: Dockerfile
     ports:
       - "9090:91"
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.reconecta-whatsapp.rule=Host(`connect.mlgrupo.com.br`)"
-        - "traefik.http.routers.reconecta-whatsapp.entrypoints=websecure"
-        - "traefik.http.routers.reconecta-whatsapp.tls=true"
-        - "traefik.http.routers.reconecta-whatsapp.tls.certresolver=letsencrypt"
-        - "traefik.http.services.reconecta-whatsapp.loadbalancer.server.port=91"
-        - "traefik.docker.network=reconecta-wpp-traefik"
+    restart: always
+    environment:
+      - REACT_APP_EVOLUTION_API_KEY=ST73WdmwZr7A6de9RrE7y8MBs6JQchZ8
+      - REACT_APP_EVOLUTION_BASE_URL=https://api.supercaso.com.br
+    networks:
+      - network_swarm_public
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=network_swarm_public"
       - "traefik.http.routers.reconecta-whatsapp.rule=Host(`connect.mlgrupo.com.br`)"
       - "traefik.http.routers.reconecta-whatsapp.entrypoints=websecure"
-      - "traefik.http.routers.reconecta-whatsapp.tls=true"
       - "traefik.http.routers.reconecta-whatsapp.tls.certresolver=letsencrypt"
       - "traefik.http.services.reconecta-whatsapp.loadbalancer.server.port=91"
-      - "traefik.docker.network=reconecta-wpp-traefik"
-    environment:
-        - REACT_APP_EVOLUTION_API_KEY=ST73WdmwZr7A6de9RrE7y8MBs6JQchZ8
-        - REACT_APP_EVOLUTION_BASE_URL=https://api.supercaso.com.br
-    networks:
-      - reconecta-wpp-traefik
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:91 || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
 
 networks:
-  reconecta-wpp-traefik:
-    driver: overlay
+  network_swarm_public:
     external: true

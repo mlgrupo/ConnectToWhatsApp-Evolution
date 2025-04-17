@@ -9,16 +9,14 @@ WORKDIR /app
 # Copia package.json e package-lock.json
 COPY package*.json ./
 
-# Instala dependências com cache limpo
-RUN npm cache clean --force && \
-    npm ci
+# Instala dependências
+RUN npm install axios && npm install
 
 # Copia o resto dos arquivos
 COPY . .
 
 # Compila o projeto
-RUN npm run build && \
-    npm cache clean --force
+RUN npm run build
 
 # Imagem de produção
 FROM nginx:alpine
