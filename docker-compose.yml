@@ -6,22 +6,12 @@ services:
     build:
       context: https://github.com/jsKahne/reconectawpp.git#main
       dockerfile: Dockerfile
-      args:
-        - NODE_ENV=production
     ports:
       - "9090:91"
     deploy:
-      mode: replicated
       replicas: 1
-      update_config:
-        parallelism: 1
-        delay: 10s
-        order: start-first
       restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-        window: 120s
+        condition: on-failure
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.reconecta-whatsapp.rule=Host(`connect.mlgrupo.com.br`)"
@@ -30,9 +20,17 @@ services:
         - "traefik.http.routers.reconecta-whatsapp.tls.certresolver=letsencrypt"
         - "traefik.http.services.reconecta-whatsapp.loadbalancer.server.port=91"
         - "traefik.docker.network=reconecta-wpp-traefik"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.reconecta-whatsapp.rule=Host(`connect.mlgrupo.com.br`)"
+      - "traefik.http.routers.reconecta-whatsapp.entrypoints=websecure"
+      - "traefik.http.routers.reconecta-whatsapp.tls=true"
+      - "traefik.http.routers.reconecta-whatsapp.tls.certresolver=letsencrypt"
+      - "traefik.http.services.reconecta-whatsapp.loadbalancer.server.port=91"
+      - "traefik.docker.network=reconecta-wpp-traefik"
     environment:
-      - REACT_APP_EVOLUTION_API_KEY=${REACT_APP_EVOLUTION_API_KEY}
-      - REACT_APP_EVOLUTION_BASE_URL=${REACT_APP_EVOLUTION_BASE_URL}
+        - REACT_APP_EVOLUTION_API_KEY=ST73WdmwZr7A6de9RrE7y8MBs6JQchZ8
+        - REACT_APP_EVOLUTION_BASE_URL=https://api.supercaso.com.br
     networks:
       - reconecta-wpp-traefik
     logging:
@@ -41,16 +39,13 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:91"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:91 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 networks:
   reconecta-wpp-traefik:
     driver: overlay
-    attachable: true
-    labels:
-      - "traefik.enable=true"
-      - "com.docker.network.driver.mtu=1450"
+    external: true

@@ -1,7 +1,7 @@
 FROM node:18-alpine as builder
 
 # Instala dependências de build
-RUN apk add --no-cache python3 make g++ git
+RUN apk add --no-cache python3 make g++ git wget
 
 # Diretório de trabalho
 WORKDIR /app
@@ -24,9 +24,8 @@ RUN npm run build && \
 FROM nginx:alpine
 
 # Instala dependências e configura nginx
-RUN apk add --no-cache curl && \
-    rm -rf /usr/share/nginx/html/* && \
-    sed -i 's/listen 80/listen 91/g' /etc/nginx/conf.d/default.conf
+RUN apk add --no-cache wget && \
+    rm -rf /usr/share/nginx/html/*
 
 # Copia os arquivos compilados
 COPY --from=builder /app/build /usr/share/nginx/html
