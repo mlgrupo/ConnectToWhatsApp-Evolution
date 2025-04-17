@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
   web:
@@ -6,11 +6,28 @@ services:
     networks:
       - network_swarm_public
     deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+        order: stop-first
       labels:
         - "traefik.enable=true"
+        - "traefik.docker.network=network_swarm_public"
         - "traefik.http.routers.reconecta-whatsapp.rule=Host(`connect.mlgrupo.com.br`)"
         - "traefik.http.routers.reconecta-whatsapp.entrypoints=websecure"
-        - "traefik.http.routers.reconecta-whatsapp.tls.certresolver=letsencrypt"
+        - "traefik.http.routers.reconecta-whatsapp.tls.certresolver=letsencryptresolver"
         - "traefik.http.services.reconecta-whatsapp.loadbalancer.server.port=91"
         - "traefik.http.routers.reconecta-whatsapp.middlewares=security-headers@file,https-redirect@file"
         - "traefik.http.routers.reconecta-whatsapp.tls.options=modern@file"
@@ -18,8 +35,10 @@ services:
         - "traefik.http.routers.reconecta-whatsapp-http.entrypoints=web"
         - "traefik.http.routers.reconecta-whatsapp-http.middlewares=https-redirect@file"
     environment:
-      REACT_APP_EVOLUTION_API_KEY: "ST73WdmwZr7A6de9RrE7y8MBs6JQchZ8"
-      REACT_APP_EVOLUTION_BASE_URL: "https://api.supercaso.com.br"
+      - NODE_ENV=production
+      - TZ=America/Sao_Paulo
+      - REACT_APP_EVOLUTION_API_KEY=ST73WdmwZr7A6de9RrE7y8MBs6JQchZ8
+      - REACT_APP_EVOLUTION_BASE_URL=https://api.supercaso.com.br
     logging:
       driver: "json-file"
       options:
@@ -28,11 +47,10 @@ services:
         compress: "true"
     security_opt:
       - no-new-privileges:true
-    read_only: true
     tmpfs:
       - /tmp
-      - /var/cache/nginx
       - /var/run
+    user: "appuser:appgroup"
 
 networks:
   network_swarm_public:

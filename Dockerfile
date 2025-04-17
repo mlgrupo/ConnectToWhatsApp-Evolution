@@ -9,23 +9,25 @@ WORKDIR /app
 # Copia package.json e package-lock.json
 COPY package*.json ./
 
-# Instala dependências
+# Instala dependências e configura permissões
 RUN npm install serve -g && \
     npm install axios && \
-    npm install
+    npm install && \
+    mkdir -p /app/.cache && \
+    chown -R appuser:appgroup /app /app/.cache
 
 # Copia o resto dos arquivos
 COPY . .
 
-# Compila o projeto
+# Compila o projeto e ajusta permissões
 RUN npm run build && \
     chown -R appuser:appgroup /app
 
 # Mudar para usuário não-root
 USER appuser
 
-# Expõe a porta 91
+# Expor porta
 EXPOSE 91
 
-# Inicia o nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Iniciar servidor com opções de cache
+CMD ["serve", "-s", "build", "-l", "91", "--no-clipboard", "--symlinks"]
