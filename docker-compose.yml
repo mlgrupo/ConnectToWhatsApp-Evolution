@@ -1,26 +1,13 @@
 version: '3.8'
 
 services:
-  # Serviço para clonar o repositório
-  git-clone:
-    image: alpine/git
-    command: ["/bin/sh", "-c", "git clone https://github.com/jsKahne/reconectawpp.git /app && cp -r /app/* /build/"]
-    volumes:
-      - build-volume:/build
-    deploy:
-      restart_policy:
-        condition: none
-
-  # Serviço para construir e servir a aplicação
   web:
     image: reconectawpp:latest
     build:
-      context: /build
+      context: https://github.com/jsKahne/reconectawpp.git#main
       dockerfile: Dockerfile
-    volumes:
-      - build-volume:/build
-    depends_on:
-      - git-clone
+      args:
+        - NODE_ENV=production
     ports:
       - "9090:91"
     deploy:
@@ -67,6 +54,3 @@ networks:
     labels:
       - "traefik.enable=true"
       - "com.docker.network.driver.mtu=1450"
-
-volumes:
-  build-volume:
