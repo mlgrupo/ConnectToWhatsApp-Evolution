@@ -3,21 +3,36 @@ version: '3'
 services:
   web:
     image: reconectawpp:latest
-    ports:
-      - "9090:91"
-    restart: always
-    environment:
-      - REACT_APP_EVOLUTION_API_KEY=ST73WdmwZr7A6de9RrE7y8MBs6JQchZ8
-      - REACT_APP_EVOLUTION_BASE_URL=https://api.supercaso.com.br
     networks:
       - network_swarm_public
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=network_swarm_public"
-      - "traefik.http.routers.reconecta-whatsapp.rule=Host(`connect.mlgrupo.com.br`)"
-      - "traefik.http.routers.reconecta-whatsapp.entrypoints=websecure"
-      - "traefik.http.routers.reconecta-whatsapp.tls.certresolver=letsencrypt"
-      - "traefik.http.services.reconecta-whatsapp.loadbalancer.server.port=91"
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.reconecta-whatsapp.rule=Host(`connect.mlgrupo.com.br`)"
+        - "traefik.http.routers.reconecta-whatsapp.entrypoints=websecure"
+        - "traefik.http.routers.reconecta-whatsapp.tls.certresolver=letsencrypt"
+        - "traefik.http.services.reconecta-whatsapp.loadbalancer.server.port=91"
+        - "traefik.http.routers.reconecta-whatsapp.middlewares=security-headers@file,https-redirect@file"
+        - "traefik.http.routers.reconecta-whatsapp.tls.options=modern@file"
+        - "traefik.http.routers.reconecta-whatsapp-http.rule=Host(`connect.mlgrupo.com.br`)"
+        - "traefik.http.routers.reconecta-whatsapp-http.entrypoints=web"
+        - "traefik.http.routers.reconecta-whatsapp-http.middlewares=https-redirect@file"
+    environment:
+      REACT_APP_EVOLUTION_API_KEY: "ST73WdmwZr7A6de9RrE7y8MBs6JQchZ8"
+      REACT_APP_EVOLUTION_BASE_URL: "https://api.supercaso.com.br"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "1m"
+        max-file: "1"
+        compress: "true"
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+      - /var/run
 
 networks:
   network_swarm_public:

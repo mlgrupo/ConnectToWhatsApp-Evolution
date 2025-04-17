@@ -1,51 +1,28 @@
-FROM node:18-alpine as builder
+FROM node:18-alpine
 
-# Instala dependências de build
-RUN apk add --no-cache python3 make g++ git wget
+# Criar usuário não-root
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Diretório de trabalho
+# Define o diretório de trabalho
 WORKDIR /app
 
 # Copia package.json e package-lock.json
 COPY package*.json ./
 
 # Instala dependências
-RUN npm install axios && npm install
+RUN npm install serve -g && \
+    npm install axios && \
+    npm install
 
 # Copia o resto dos arquivos
 COPY . .
 
 # Compila o projeto
-RUN npm run build
+RUN npm run build && \
+    chown -R appuser:appgroup /app
 
-# Imagem de produção
-FROM nginx:alpine
-
-# Instala dependências e configura nginx
-RUN apk add --no-cache wget && \
-    rm -rf /usr/share/nginx/html/*
-
-# Copia os arquivos compilados
-COPY --from=builder /app/build /usr/share/nginx/html
-
-# Configurações do nginx para melhor performance
-RUN echo '\
-server {\
-    listen 91;\
-    server_name localhost;\
-    root /usr/share/nginx/html;\
-    index index.html;\
-    location / {\
-        try_files $uri $uri/ /index.html;\
-        add_header Cache-Control "no-store, no-cache, must-revalidate";\
-    }\
-    location /static/ {\
-        expires 1y;\
-        add_header Cache-Control "public, immutable";\
-    }\
-    gzip on;\
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;\
-}' > /etc/nginx/conf.d/default.conf
+# Mudar para usuário não-root
+USER appuser
 
 # Expõe a porta 91
 EXPOSE 91

@@ -1,18 +1,27 @@
 import axios from 'axios';
 import { Instance, ConnectionState } from '../types/Instance';
 
+declare global {
+    interface Window {
+        _env_: {
+            REACT_APP_EVOLUTION_API_KEY: string;
+            REACT_APP_EVOLUTION_BASE_URL: string;
+        };
+    }
+}
+
 const api = axios.create({
-    baseURL: process.env.REACT_APP_EVOLUTION_BASE_URL,
+    baseURL: window._env_.REACT_APP_EVOLUTION_BASE_URL,
     headers: {
-        'apikey': process.env.REACT_APP_EVOLUTION_API_KEY,
+        'apikey': window._env_.REACT_APP_EVOLUTION_API_KEY,
         'Content-Type': 'application/json'
     }
 });
 
 // Log para verificar as configurações
 console.log('API Config:', {
-    baseURL: process.env.REACT_APP_EVOLUTION_BASE_URL,
-    apiKey: process.env.REACT_APP_EVOLUTION_API_KEY
+    baseURL: window._env_.REACT_APP_EVOLUTION_BASE_URL,
+    apiKey: window._env_.REACT_APP_EVOLUTION_API_KEY
 });
 
 export const getInstances = async (): Promise<Instance[]> => {
