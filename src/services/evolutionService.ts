@@ -41,6 +41,7 @@ export const getInstances = async (): Promise<Instance[]> => {
     }
 };
 
+
 export const connectInstance = async (instanceName: string): Promise<{ qrcode?: string; state: ConnectionState }> => {
     // Função para tentar obter o QR code com timeout
     const getQRCodeWithTimeout = async (): Promise<{ qrcode?: string; state: ConnectionState }> => {
