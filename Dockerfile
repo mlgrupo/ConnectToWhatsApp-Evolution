@@ -7,14 +7,16 @@ COPY package.json package-lock.json ./
 RUN npm install
 
 COPY . .
-
 RUN npm run build
 
-# Etapa de produção com NGINX
-FROM nginx:alpine
+# Etapa de produção
+FROM node:18
 
-COPY --from=build /app/build /usr/share/nginx/html
+WORKDIR /app
 
-EXPOSE 80
+COPY --from=build /app/dist ./dist
+COPY package.json ./
 
-CMD ["nginx", "-g", "daemon off;"]
+RUN npm install --only=production
+
+CMD ["node", "dist/index.js"]
