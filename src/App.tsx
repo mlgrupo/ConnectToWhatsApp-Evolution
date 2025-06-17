@@ -9,8 +9,9 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const apiKey = process.env.REACT_APP_EVOLUTION_API_KEY;
-  const baseUrl = process.env.REACT_APP_EVOLUTION_BASE_URL;
+  const apiKey = import.meta.env.VITE_EVOLUTION_API_KEY;
+  const baseUrl = import.meta.env.VITE_EVOLUTION_BASE_URL;
+
 
   useEffect(() => {
 
@@ -114,7 +115,7 @@ function App() {
             color: '#1a1a1a'
           }}
         >
-          Conectar WhatsApp RECONECTA
+          WHATSAPPS RECONECTA
         </Typography>
 
         <TextField

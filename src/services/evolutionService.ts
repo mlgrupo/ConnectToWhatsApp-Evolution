@@ -1,34 +1,30 @@
 import axios from 'axios';
 import { Instance, ConnectionState } from '../types/Instance';
 
+// Declaração global (não usada mais depois, mas mantendo caso queira no futuro)
 declare global {
     interface Window {
         _env_: {
-            REACT_APP_EVOLUTION_API_KEY: string;
-            REACT_APP_EVOLUTION_BASE_URL: string;
+            VITE_EVOLUTION_API_KEY: string;
+            VITE_EVOLUTION_BASE_URL: string;
         };
     }
 }
 
 const api = axios.create({
-    baseURL: window._env_.REACT_APP_EVOLUTION_BASE_URL,
+    baseURL: import.meta.env.VITE_EVOLUTION_BASE_URL,
     headers: {
-        'apikey': window._env_.REACT_APP_EVOLUTION_API_KEY,
+        'apikey': import.meta.env.VITE_EVOLUTION_API_KEY,
         'Content-Type': 'application/json'
     }
 });
 
 // Log para verificar as configurações
-console.log('API Config:', {
-    baseURL: window._env_.REACT_APP_EVOLUTION_BASE_URL,
-    apiKey: window._env_.REACT_APP_EVOLUTION_API_KEY
-});
+
 
 export const getInstances = async (): Promise<Instance[]> => {
     try {
-        console.log('Fazendo requisição para obter instâncias...');
         const response = await api.get('/instance/fetchInstances');
-        console.log('Resposta recebida:', response.data);
         return response.data;
 
     } catch (error) {
@@ -49,7 +45,7 @@ export const connectInstance = async (instanceName: string): Promise<{ qrcode?: 
     // Função para tentar obter o QR code com timeout
     const getQRCodeWithTimeout = async (): Promise<{ qrcode?: string; state: ConnectionState }> => {
         const timeoutPromise = new Promise<{ qrcode?: string; state: ConnectionState }>((_, reject) => {
-            setTimeout(() => reject(new Error('Timeout ao gerar QR code')), 40000); // 40 segundos
+            setTimeout(() => reject(new Error('Timeout ao gerar QR code')), 40000);
         });
 
         const connectPromise = (async () => {
@@ -110,7 +106,6 @@ export const connectInstance = async (instanceName: string): Promise<{ qrcode?: 
 export const checkInstanceConnection = async (instanceName: string): Promise<ConnectionState> => {
     try {
         const response = await api.get(`/instance/connectionState/${instanceName}`);
-        console.log('Estado da conexão:', response.data);
 
         if (response.data.state === 'open') {
             return 'open';
