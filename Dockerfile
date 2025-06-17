@@ -1,5 +1,5 @@
-# Build step
-FROM node:18 as build
+# Etapa de build
+FROM node:18 AS build
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ COPY . .
 
 RUN npm run build
 
-# Serve step
+# Etapa de produção com NGINX
 FROM nginx:alpine
 
 COPY --from=build /app/build /usr/share/nginx/html
